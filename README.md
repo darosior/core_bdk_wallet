@@ -285,15 +285,15 @@ candidates:
 ## Generating Rust IPC interface from Capnp definition
 
 To generate the Rust source files i used the [`capnp`](https://capnproto.org/capnp-tool.html) tool.
-I copied the Capnp files from Bitcoin Core, along with their dependencies (libmultiprocess (`mp`)
-and the Capnp "standard library" (`/capnp`)), in the `schema` folder at the root of this repository.
+I copied the Capnp files from Bitcoin Core along with its vendored libmultiprocess dependency (`mp`),
+and from the Capnp "standard library" (`/capnp`), in the `schema` folder at the root of this repository.
 I applied only minimal changes to be able to compile them on their own (no system dep) and result in
 Rust source files at the root.
 
 ```
 mkdir schema
 cp ../bitcoin/src/ipc/capnp/*.capnp schema/
-cp ../libmultiprocess/include/mp/*.capnp schema/
+cp ../bitcoin/src/ipc/libmultiprocess/include/mp/*.capnp schema/
 cp /usr/include/capnp/c++.capnp schema/
 sed -i 's/"\/mp\//"/g' schema/*.capnp
 sed -i 's/"\/capnp\//"/g' schema/*.capnp

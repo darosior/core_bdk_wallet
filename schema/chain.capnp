@@ -49,26 +49,27 @@ interface Chain $Proxy.wrap("interfaces::Chain") {
     relayIncrementalFee @30 (context :Proxy.Context) -> (result :Data);
     relayDustFee @31 (context :Proxy.Context) -> (result :Data);
     havePruned @32 (context :Proxy.Context) -> (result :Bool);
-    isReadyToBroadcast @33 (context :Proxy.Context) -> (result :Bool);
-    isInitialBlockDownload @34 (context :Proxy.Context) -> (result :Bool);
-    shutdownRequested @35 (context :Proxy.Context) -> (result :Bool);
-    initMessage @36 (context :Proxy.Context, message :Text) -> ();
-    initWarning @37 (context :Proxy.Context, message :Common.BilingualStr) -> ();
-    initError @38 (context :Proxy.Context, message :Common.BilingualStr) -> ();
-    showProgress @39 (context :Proxy.Context, title :Text, progress :Int32, resumePossible :Bool) -> ();
-    handleNotifications @40 (context :Proxy.Context, notifications :ChainNotifications) -> (result :Handler.Handler);
-    waitForNotificationsIfTipChanged @41 (context :Proxy.Context, oldTip :Data) -> ();
-    handleRpc @42 (context :Proxy.Context, command :RPCCommand) -> (result :Handler.Handler);
-    rpcEnableDeprecated @43 (context :Proxy.Context, method :Text) -> (result :Bool);
-    rpcRunLater @44 (context :Proxy.Context, name :Text, fn: RunLaterCallback, seconds: Int64) -> ();
-    getSetting @45 (context :Proxy.Context, name :Text) -> (result :Text);
-    getSettingsList @46 (context :Proxy.Context, name :Text) -> (result :List(Text));
-    getRwSetting @47 (context :Proxy.Context, name :Text) -> (result :Text);
-    updateRwSetting @48 (context :Proxy.Context, name :Text, update: SettingsUpdateCallback) -> (result :Bool);
-    overwriteRwSetting @49 (context :Proxy.Context, name :Text, value :Text, action :Int32) -> (result :Bool);
-    deleteRwSettings @50 (context :Proxy.Context, name :Text, action: Int32) -> (result :Bool);
-    requestMempoolTransactions @51 (context :Proxy.Context, notifications :ChainNotifications) -> ();
-    hasAssumedValidChain @52 (context :Proxy.Context) -> (result :Bool);
+    getPruneHeight @33 (context :Proxy.Context) -> (result: Int32, hasResult: Bool);
+    isReadyToBroadcast @34 (context :Proxy.Context) -> (result :Bool);
+    isInitialBlockDownload @35 (context :Proxy.Context) -> (result :Bool);
+    shutdownRequested @36 (context :Proxy.Context) -> (result :Bool);
+    initMessage @37 (context :Proxy.Context, message :Text) -> ();
+    initWarning @38 (context :Proxy.Context, message :Common.BilingualStr) -> ();
+    initError @39 (context :Proxy.Context, message :Common.BilingualStr) -> ();
+    showProgress @40 (context :Proxy.Context, title :Text, progress :Int32, resumePossible :Bool) -> ();
+    handleNotifications @41 (context :Proxy.Context, notifications :ChainNotifications) -> (result :Handler.Handler);
+    waitForNotificationsIfTipChanged @42 (context :Proxy.Context, oldTip :Data) -> ();
+    handleRpc @43 (context :Proxy.Context, command :RPCCommand) -> (result :Handler.Handler);
+    rpcEnableDeprecated @44 (context :Proxy.Context, method :Text) -> (result :Bool);
+    rpcRunLater @45 (context :Proxy.Context, name :Text, fn: RunLaterCallback, seconds: Int64) -> ();
+    getSetting @46 (context :Proxy.Context, name :Text) -> (result :Text);
+    getSettingsList @47 (context :Proxy.Context, name :Text) -> (result :List(Text));
+    getRwSetting @48 (context :Proxy.Context, name :Text) -> (result :Text);
+    updateRwSetting @49 (context :Proxy.Context, name :Text, update: SettingsUpdateCallback) -> (result :Bool);
+    overwriteRwSetting @50 (context :Proxy.Context, name :Text, value :Text, action :Int32) -> (result :Bool);
+    deleteRwSettings @51 (context :Proxy.Context, name :Text, action: Int32) -> (result :Bool);
+    requestMempoolTransactions @52 (context :Proxy.Context, notifications :ChainNotifications) -> ();
+    hasAssumedValidChain @53 (context :Proxy.Context) -> (result :Bool);
 }
 
 interface ChainNotifications $Proxy.wrap("interfaces::Chain::Notifications") {

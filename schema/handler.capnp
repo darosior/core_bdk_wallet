@@ -9,6 +9,7 @@ $Cxx.namespace("ipc::capnp::messages");
 
 using Proxy = import "proxy.capnp";
 $Proxy.include("interfaces/handler.h");
+$Proxy.includeTypes("ipc/capnp/handler-types.h");
 
 interface Handler $Proxy.wrap("interfaces::Handler") {
     destroy @0 (context :Proxy.Context) -> ();
