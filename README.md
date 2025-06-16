@@ -51,16 +51,16 @@ Start the `bitcoind` node, create a wallet on it (i'll call it `alice`), and fun
 mining some blocks:
 ```
 mkdir regular_bitcoind_wallet
-./multiprocbuild/src/bitcoind -regtest -datadir=$PWD/regular_bitcoind_wallet -daemon
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet createwallet alice
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 110 $(./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
+./multiprocbuild/bin/bitcoind -regtest -datadir=$PWD/regular_bitcoind_wallet -daemon
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet createwallet alice
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 110 $(./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
 ```
 
 Now start the `bitcoin-node` node in a different datadir, connected to the first node, with no
 JSONRPC server:
 ```
 mkdir datadir_bdk_wallet
-./multiprocbuild/src/bitcoin-node -regtest -datadir=$PWD/datadir_bdk_wallet -server=0 -port=19444 -connect=127.0.0.1:18444 -ipcbind=unix -debug=ipc
+./multiprocbuild/bin/bitcoin-node -regtest -datadir=$PWD/datadir_bdk_wallet -server=0 -port=19444 -connect=127.0.0.1:18444 -ipcbind=unix -debug=ipc
 ```
 
 *(Mind the necessary `-ipcbind=unix` to create the interface and optional `-debug=ipc` to observe IPC
@@ -110,7 +110,7 @@ startup by default.
 
 From the `bitcoin` folder (replace the address with yours):
 ```
-./multiprocbuild/src/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1p6cr3s4qctntvjecaujv8ewqe3xlcz4kz2a6hp6v3t5ja40hzwzfstmrw9d amount=0.4242 fee_rate=1
+./multiprocbuild/bin/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1p6cr3s4qctntvjecaujv8ewqe3xlcz4kz2a6hp6v3t5ja40hzwzfstmrw9d amount=0.4242 fee_rate=1
 ```
 
 *(Note it takes a few seconds for the first node to relay the transaction to the other one. That's
@@ -152,8 +152,8 @@ the one we did just before.
 **Again, make sure your BDK Core wallet is still up.**
 
 ```
-./multiprocbuild/src/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1pvq3qt00md83428aupply35pt5vvf6af62k790gm95l4utz405npsxtp566 amount=0.2121 fee_rate=1
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 1 $(./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
+./multiprocbuild/bin/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1pvq3qt00md83428aupply35pt5vvf6af62k790gm95l4utz405npsxtp566 amount=0.2121 fee_rate=1
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 1 $(./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
 ```
 
 *(Note i used the following unused address for the second transaction.)*
@@ -200,8 +200,8 @@ Wallet info:
 Wait for your BDK Core wallet to disconnect and send it another confirmed transaction.
 
 ```
-./multiprocbuild/src/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1p2et26ujjf4yqlcrcc0ezjde30phlv2wpp68jqay84qmq56nkfezsq0l660 amount=12 fee_rate=1
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 1 $(./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress
+./multiprocbuild/bin/bitcoin-cli -named -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice sendtoaddress bcrt1p2et26ujjf4yqlcrcc0ezjde30phlv2wpp68jqay84qmq56nkfezsq0l660 amount=12 fee_rate=1
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 1 $(./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress
 ```
 
 Now start it again, it will sync against Core and find out the transaction in the block:
@@ -234,8 +234,8 @@ Waiting 60 seconds before disconnecting.
 
 Create a fake reorg from the `bitcoind` node to propagate to the `bitcoin-node` node.
 ```
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice invalidateblock $(./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getblockhash 111)
-./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 3 $(./multiprocbuild/src/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice invalidateblock $(./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getblockhash 111)
+./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice generatetoaddress 3 $(./multiprocbuild/bin/bitcoin-cli -regtest -datadir=$PWD/regular_bitcoind_wallet -rpcwallet=alice getnewaddress)
 ```
 
 Output:
