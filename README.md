@@ -36,7 +36,7 @@ in the `bitcoin` repo.
 
 ```
 cd bitcoin
-cmake -B multiprocbuild/ -DWITH_MULTIPROCESS=ON
+cmake -B multiprocbuild/ -DENABLE_IPC=1
 cmake --build multiprocbuild/ -j20
 ```
 
