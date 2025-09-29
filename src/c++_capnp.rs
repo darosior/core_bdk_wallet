@@ -10,3 +10,7 @@ pub mod name {
   pub const ID: u64 = 0xf264a779fef191ce;
   pub fn get_type() -> ::capnp::introspect::Type { <::capnp::text::Owned as ::capnp::introspect::Introspect>::introspect() }
 }
+pub mod allow_cancellation {
+  pub const ID: u64 = 0xac7096ff8cfc9dce;
+  pub fn get_type() -> ::capnp::introspect::Type { <() as ::capnp::introspect::Introspect>::introspect() }
+}

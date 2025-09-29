@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [build-dependencies]
-capnpc = "0.20.1"
+capnpc = "0.21"
 
 [dependencies]
 bdk_chain = { version = "0.20.0", features = ["serde"] }
 bdk_file_store = "0.17.0"
-capnp = "0.20.3"
-capnp-rpc = "0.20.2"
+capnp = "0.21"
+capnp-rpc = "0.21"
 serde = { version = "1.0.215", features = ["derive"] }
 tokio = { version = "1.41.1", features = ["net", "rt", "macros", "time"] }
 tokio-util = { version = "0.7.12", features = ["compat"] }

@@ -15,13 +15,13 @@ pub mod handler {
     pub client: ::capnp::capability::Client,
   }
   impl  ::capnp::capability::FromClientHook for Client {
-    fn new(hook: Box<dyn (::capnp::private::capability::ClientHook)>) -> Self {
+    fn new(hook: Box<::capnp::capability::DynClientHook>) -> Self {
       Self { client: ::capnp::capability::Client::new(hook),  }
     }
-    fn into_client_hook(self) -> Box<dyn (::capnp::private::capability::ClientHook)> {
+    fn into_client_hook(self) -> Box<::capnp::capability::DynClientHook> {
       self.client.hook
     }
-    fn as_client_hook(&self) -> &dyn (::capnp::private::capability::ClientHook) {
+    fn as_client_hook(&self) -> &::capnp::capability::DynClientHook {
       &*self.client.hook
     }
   }
@@ -55,7 +55,7 @@ pub mod handler {
   }
   impl  Clone for Client {
     fn clone(&self) -> Self {
-      Self { client: ::capnp::capability::Client::new(self.client.hook.add_ref()),  }
+      Self { client: self.client.clone(),  }
     }
   }
   impl  Client {
@@ -298,11 +298,11 @@ pub mod handler {
       pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
         match index {
           0 => <crate::proxy_capnp::context::Owned as ::capnp::introspect::Introspect>::introspect(),
-          _ => panic!("invalid field index {}", index),
+          _ => ::capnp::introspect::panic_invalid_field_index(index),
         }
       }
       pub fn get_annotation_types(child_index: Option<u16>, index: u32) -> ::capnp::introspect::Type {
-        panic!("invalid annotation indices ({:?}, {}) ", child_index, index)
+        ::capnp::introspect::panic_invalid_annotation_indices(child_index, index)
       }
       pub static RAW_SCHEMA: ::capnp::introspect::RawStructSchema = ::capnp::introspect::RawStructSchema {
         encoded_node: &ENCODED_NODE,
@@ -463,10 +463,10 @@ pub mod handler {
         ::capnp::word(115, 117, 108, 116, 115, 0, 0, 0),
       ];
       pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
-        panic!("invalid field index {}", index)
+        ::capnp::introspect::panic_invalid_field_index(index)
       }
       pub fn get_annotation_types(child_index: Option<u16>, index: u32) -> ::capnp::introspect::Type {
-        panic!("invalid annotation indices ({:?}, {}) ", child_index, index)
+        ::capnp::introspect::panic_invalid_annotation_indices(child_index, index)
       }
       pub static RAW_SCHEMA: ::capnp::introspect::RawStructSchema = ::capnp::introspect::RawStructSchema {
         encoded_node: &ENCODED_NODE,
@@ -672,11 +672,11 @@ pub mod handler {
       pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
         match index {
           0 => <crate::proxy_capnp::context::Owned as ::capnp::introspect::Introspect>::introspect(),
-          _ => panic!("invalid field index {}", index),
+          _ => ::capnp::introspect::panic_invalid_field_index(index),
         }
       }
       pub fn get_annotation_types(child_index: Option<u16>, index: u32) -> ::capnp::introspect::Type {
-        panic!("invalid annotation indices ({:?}, {}) ", child_index, index)
+        ::capnp::introspect::panic_invalid_annotation_indices(child_index, index)
       }
       pub static RAW_SCHEMA: ::capnp::introspect::RawStructSchema = ::capnp::introspect::RawStructSchema {
         encoded_node: &ENCODED_NODE,
@@ -838,10 +838,10 @@ pub mod handler {
         ::capnp::word(0, 0, 0, 0, 0, 0, 0, 0),
       ];
       pub fn get_field_types(index: u16) -> ::capnp::introspect::Type {
-        panic!("invalid field index {}", index)
+        ::capnp::introspect::panic_invalid_field_index(index)
       }
       pub fn get_annotation_types(child_index: Option<u16>, index: u32) -> ::capnp::introspect::Type {
-        panic!("invalid annotation indices ({:?}, {}) ", child_index, index)
+        ::capnp::introspect::panic_invalid_annotation_indices(child_index, index)
       }
       pub static RAW_SCHEMA: ::capnp::introspect::RawStructSchema = ::capnp::introspect::RawStructSchema {
         encoded_node: &ENCODED_NODE,

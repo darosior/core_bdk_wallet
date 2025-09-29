@@ -644,6 +644,9 @@ async fn wallet_startup(
     println!("It does. Now proceeding to sync the BDK wallet.");
     for h in start_height..=node_tip.height.try_into().expect("Never negative.") {
         let block = rpc.get_block(&node_tip.hash, h).await;
+        if h % 1000 == 0 {
+            println!("Syncing block {}", h);
+        }
         wallet.apply_block(&block, h)?;
     }
 
