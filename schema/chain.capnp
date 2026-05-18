@@ -1,6 +1,6 @@
-# Copyright (c) 2024 The Bitcoin Core developers
+# Copyright (c) The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# file COPYING or https://opensource.org/license/mit.
 
 @0x94f21a4864bd2c65;
 
@@ -34,13 +34,13 @@ interface Chain $Proxy.wrap("interfaces::Chain") {
     isRBFOptIn @15 (context :Proxy.Context, tx :Data) -> (result :Int32);
     isInMempool @16 (context :Proxy.Context, txid :Data) -> (result :Bool);
     hasDescendantsInMempool @17 (context :Proxy.Context, txid :Data) -> (result :Bool);
-    broadcastTransaction @18 (context :Proxy.Context, tx: Data, maxTxFee :Int64, relay :Bool) -> (error: Text, result :Bool);
+    broadcastTransaction @18 (context :Proxy.Context, tx: Data, maxTxFee :Int64, broadcastMethod :Int32) -> (error: Text, result :Bool);
     getTransactionAncestry @19 (context :Proxy.Context, txid :Data) -> (ancestors :UInt64, descendants :UInt64, ancestorsize :UInt64, ancestorfees :Int64);
     calculateIndividualBumpFees @20 (context :Proxy.Context, outpoints :List(Data), targetFeerate :Data) -> (result: List(Common.PairInt64(Data)));
     calculateCombinedBumpFee @21 (context :Proxy.Context, outpoints :List(Data), targetFeerate :Data) -> (result :Int64, hasResult :Bool);
-    getPackageLimits @22 (context :Proxy.Context) -> (ancestors :UInt64, descendants :UInt64);
+    getPackageLimits @22 (context :Proxy.Context) -> (ancestors :UInt32, descendants :UInt32);
     checkChainLimits @23 (context :Proxy.Context, tx :Data) -> (result :Common.ResultVoid);
-    estimateSmartFee @24 (context :Proxy.Context, numBlocks :Int32, conservative :Bool, wantCalc :Bool) -> (calc :FeeCalculation, result :Data);
+    estimateSmartFee @24 (context :Proxy.Context, numBlocks :Int32, conservative :Bool, wantCalc :Bool) -> (calc :Common.FeeCalculation, result :Data);
     estimateMaxBlocks @25 (context :Proxy.Context) -> (result :UInt32);
     mempoolMinFee @26 (context :Proxy.Context) -> (result :Data);
     relayMinFee @27 (context :Proxy.Context) -> (result :Data);
@@ -57,26 +57,27 @@ interface Chain $Proxy.wrap("interfaces::Chain") {
     showProgress @38 (context :Proxy.Context, title :Text, progress :Int32, resumePossible :Bool) -> ();
     handleNotifications @39 (context :Proxy.Context, notifications :ChainNotifications) -> (result :Handler.Handler);
     waitForNotificationsIfTipChanged @40 (context :Proxy.Context, oldTip :Data) -> ();
-    handleRpc @41 (context :Proxy.Context, command :RPCCommand) -> (result :Handler.Handler);
-    rpcEnableDeprecated @42 (context :Proxy.Context, method :Text) -> (result :Bool);
-    getSetting @43 (context :Proxy.Context, name :Text) -> (result :Text);
-    getSettingsList @44 (context :Proxy.Context, name :Text) -> (result :List(Text));
-    getRwSetting @45 (context :Proxy.Context, name :Text) -> (result :Text);
-    updateRwSetting @46 (context :Proxy.Context, name :Text, update: SettingsUpdateCallback) -> (result :Bool);
-    overwriteRwSetting @47 (context :Proxy.Context, name :Text, value :Text, action :Int32) -> (result :Bool);
-    deleteRwSettings @48 (context :Proxy.Context, name :Text, action: Int32) -> (result :Bool);
-    requestMempoolTransactions @49 (context :Proxy.Context, notifications :ChainNotifications) -> ();
-    hasAssumedValidChain @50 (context :Proxy.Context) -> (result :Bool);
+    waitForNotifications @41 (context :Proxy.Context) -> ();
+    handleRpc @42 (context :Proxy.Context, command :RPCCommand) -> (result :Handler.Handler);
+    rpcEnableDeprecated @43 (context :Proxy.Context, method :Text) -> (result :Bool);
+    getSetting @44 (context :Proxy.Context, name :Text) -> (result :Text);
+    getSettingsList @45 (context :Proxy.Context, name :Text) -> (result :List(Text));
+    getRwSetting @46 (context :Proxy.Context, name :Text) -> (result :Text);
+    updateRwSetting @47 (context :Proxy.Context, name :Text, update: SettingsUpdateCallback) -> (result :Bool);
+    overwriteRwSetting @48 (context :Proxy.Context, name :Text, value :Text, action :Int32) -> (result :Bool);
+    deleteRwSettings @49 (context :Proxy.Context, name :Text, action: Int32) -> (result :Bool);
+    requestMempoolTransactions @50 (context :Proxy.Context, notifications :ChainNotifications) -> ();
+    hasAssumedValidChain @51 (context :Proxy.Context) -> (result :Bool);
 }
 
 interface ChainNotifications $Proxy.wrap("interfaces::Chain::Notifications") {
     destroy @0 (context :Proxy.Context) -> ();
     transactionAddedToMempool @1 (context :Proxy.Context, tx :Data) -> ();
     transactionRemovedFromMempool @2 (context :Proxy.Context, tx :Data, reason :Int32) -> ();
-    blockConnected @3 (context :Proxy.Context, role: UInt32, block :BlockInfo) -> ();
+    blockConnected @3 (context :Proxy.Context, role: ChainstateRole, block :BlockInfo) -> ();
     blockDisconnected @4 (context :Proxy.Context, block :BlockInfo) -> ();
     updatedBlockTip @5 (context :Proxy.Context) -> ();
-    chainStateFlushed @6 (context :Proxy.Context, role: UInt32, locator :Data) -> ();
+    chainStateFlushed @6 (context :Proxy.Context, role: ChainstateRole, locator :Data) -> ();
 }
 
 interface ChainClient $Proxy.wrap("interfaces::ChainClient") {
@@ -87,32 +88,7 @@ interface ChainClient $Proxy.wrap("interfaces::ChainClient") {
     start @4 (context :Proxy.Context, scheduler :Void) -> ();
     stop @5 (context :Proxy.Context) -> ();
     setMockTime @6 (context :Proxy.Context, time :Int64) -> ();
-    schedulerMockForward @7 (context :Proxy.Context, time :Int64) -> ();
-}
-
-struct FeeCalculation $Proxy.wrap("FeeCalculation") {
-    est @0 :EstimationResult;
-    reason @1 :Int32;
-    desiredTarget @2 :Int32;
-    returnedTarget @3 :Int32;
-}
-
-struct EstimationResult $Proxy.wrap("EstimationResult")
-{
-    pass @0 :EstimatorBucket;
-    fail @1 :EstimatorBucket;
-    decay @2 :Float64;
-    scale @3 :UInt32;
-}
-
-struct EstimatorBucket $Proxy.wrap("EstimatorBucket")
-{
-    start @0 :Float64;
-    end @1 :Float64;
-    withinTarget @2 :Float64;
-    totalConfirmed @3 :Float64;
-    inMempool @4 :Float64;
-    leftMempool @5 :Float64;
+    schedulerMockForward @7 (context :Proxy.Context, deltaSeconds :Int64) -> ();
 }
 
 struct RPCCommand $Proxy.wrap("CRPCCommand") {
@@ -123,29 +99,29 @@ struct RPCCommand $Proxy.wrap("CRPCCommand") {
    uniqueId @4 :Int64 $Proxy.name("unique_id");
 }
 
+# Representation of std::pair<std::string, bool> in CRPCCommand
 struct RPCArg {
    name @0 :Text;
    namedOnly @1: Bool;
 }
 
 interface ActorCallback $Proxy.wrap("ProxyCallback<CRPCCommand::Actor>") {
-    call @0 (context :Proxy.Context, request :JSONRPCRequest, response :Text, lastCallback :Bool) -> (error :Text $Proxy.exception("std::exception"), rpcError :Text $Proxy.exception("UniValue"), typeError :Text $Proxy.exception("UniValue::type_error"), response :Text, result: Bool);
+    call @0 (context :Proxy.Context, request :JSONRPCRequest, response :Text, lastCallback :Bool) -> (error :Text $Proxy.exception("std::exception"), rpcError :Text $Proxy.exception("UniValue"), typeError :Text $Proxy.exception("UniValue::type_error"), helpResult :HelpResult $Proxy.exception("HelpResult"), response :Text, result: Bool);
+}
+
+struct HelpResult {
+    message @0 :Text;
 }
 
 struct JSONRPCRequest $Proxy.wrap("JSONRPCRequest") {
     id @0 :Text;
     method @1 :Text $Proxy.name("strMethod");
     params @2 :Text;
-    mode @3 :UInt32;
+    mode @3 :Int32;
     uri @4 :Text $Proxy.name("URI");
     authUser @5 :Text;
     peerAddr @6 :Text;
     version @7: Int32 $Proxy.name("m_json_version");
-}
-
-interface RunLaterCallback $Proxy.wrap("ProxyCallback<std::function<void()>>") {
-    destroy @0 (context :Proxy.Context) -> ();
-    call @1 (context :Proxy.Context) -> ();
 }
 
 struct FoundBlockParam {
@@ -166,7 +142,7 @@ struct FoundBlockResult {
     time @2 :Int64;
     maxTime @3 :Int64;
     mtpTime @4 :Int64;
-    inActiveChain @5 :Int64;
+    inActiveChain @5 :Bool;
     locator @6 :Data;
     nextBlock @7: FoundBlockResult;
     data @8 :Data;
@@ -184,6 +160,11 @@ struct BlockInfo $Proxy.wrap("interfaces::BlockInfo") {
     data @5 :Data $Proxy.skip;
     undoData @6 :Data $Proxy.skip;
     chainTimeMax @7 :UInt32 = 0 $Proxy.name("chain_time_max");
+}
+
+struct ChainstateRole $Proxy.wrap("kernel::ChainstateRole") {
+    validated @0 :Bool;
+    historical @1 :Bool;
 }
 
 interface SettingsUpdateCallback $Proxy.wrap("ProxyCallback<interfaces::SettingsUpdate>") {
