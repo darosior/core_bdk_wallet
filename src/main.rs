@@ -36,6 +36,8 @@ mod init_capnp;
 mod mining_capnp;
 #[allow(dead_code)]
 mod proxy_capnp;
+#[allow(dead_code)]
+mod rpc_capnp;
 use chain_capnp::{
     chain::Client as ChainClient,
     chain_notifications::{
@@ -51,7 +53,7 @@ use proxy_capnp::thread::Client as ThreadClient;
 
 // When connected to Bitcoin Core we will sleep for that many seconds before disconnecting
 // and exiting the program. Feel free to change.
-const SLEEP_BEFORE_DISCONNECT_SECS: u64 = 6;
+const SLEEP_BEFORE_DISCONNECT_SECS: u64 = 60;
 
 // I only track a single descriptor (no change) for the purpose of this PoC. Feel free to
 // change it and/or the network if you want to try for instance on Signet.
@@ -273,6 +275,7 @@ struct RpcInterface {
     disconnector: capnp_rpc::Disconnector<twoparty::VatId>,
     thread: ThreadClient,
     chain_interface: ChainClient,
+    notification_handler: Option<handler_capnp::handler::Client>,
 }
 
 // In the implementation of methods of the IPC interface i used `unwraps()` for
@@ -319,6 +322,7 @@ impl RpcInterface {
             thread,
             chain_interface,
             disconnector,
+            notification_handler: None,
         })
     }
 
@@ -448,7 +452,7 @@ impl RpcInterface {
         let _ = mk_mess_req.send().promise.await.unwrap();
     }
 
-    pub async fn register_notifications(&self, wallet: Arc<Mutex<BdkWallet>>) {
+    pub async fn register_notifications(&mut self, wallet: Arc<Mutex<BdkWallet>>) {
         let notif_handler = capnp_rpc::new_client(wallet);
         let mut register_req = self.chain_interface.handle_notifications_request();
         register_req
@@ -457,7 +461,8 @@ impl RpcInterface {
             .unwrap()
             .set_thread(self.thread.clone());
         register_req.get().set_notifications(notif_handler);
-        let _ = register_req.send().promise.await.unwrap();
+        let response = register_req.send().promise.await.unwrap();
+        self.notification_handler = Some(response.get().unwrap().get_result().unwrap());
     }
 
     pub async fn disconnect(self) -> Result<(), capnp::Error> {
@@ -473,7 +478,7 @@ impl chain_capnp::chain_notifications::Server for Arc<Mutex<BdkWallet>> {
         _: DestroyParams,
         _: DestroyResults,
     ) -> ::capnp::capability::Promise<(), ::capnp::Error> {
-        unimplemented!("Destroy notification") // TODO: do we ever receive this? Looks like not.
+        ::capnp::capability::Promise::ok(())
     }
 
     fn transaction_added_to_mempool(
@@ -559,7 +564,7 @@ impl chain_capnp::chain_notifications::Server for Arc<Mutex<BdkWallet>> {
 }
 
 // BDK wallet is up and synced with Core. Inform users and register for notifs.
-async fn wallet_startup_complete(rpc: &RpcInterface, wallet: BdkWallet) -> Arc<Mutex<BdkWallet>> {
+async fn wallet_startup_complete(rpc: &mut RpcInterface, wallet: BdkWallet) -> Arc<Mutex<BdkWallet>> {
     println!("BDK Core is synced with bitcoin-node.");
     rpc.show_progress("BDK Core startup", 100, true).await;
 
@@ -575,7 +580,7 @@ async fn wallet_startup_complete(rpc: &RpcInterface, wallet: BdkWallet) -> Arc<M
 // to disconnect the old tip from the headers linked list (the "local chain") and process
 // the blocks from the new chain to make sure we didn't miss any transaction.
 async fn wallet_handle_startup_reorg(
-    rpc: &RpcInterface,
+    rpc: &mut RpcInterface,
     mut wallet: BdkWallet,
     node_tip: &BlockId,
     wallet_tip: &BlockId,
@@ -610,7 +615,7 @@ async fn wallet_handle_startup_reorg(
 
 // Start the BDK wallet and sync its state with Core's.
 async fn wallet_startup(
-    rpc: &RpcInterface,
+    rpc: &mut RpcInterface,
 ) -> Result<Arc<Mutex<BdkWallet>>, Box<dyn std::error::Error>> {
     let mut wallet = BdkWallet::new()?;
 
@@ -655,8 +660,8 @@ async fn wallet_startup(
 }
 
 async fn rpc_main(stream: tokio::net::UnixStream) -> Result<(), Box<dyn std::error::Error>> {
-    let rpc = RpcInterface::new(stream).await?;
-    let wallet = wallet_startup(&rpc).await?;
+    let mut rpc = RpcInterface::new(stream).await?;
+    let wallet = wallet_startup(&mut rpc).await?;
 
     wallet.lock().unwrap().print_info()?;
 
